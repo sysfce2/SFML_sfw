@@ -1,18 +1,21 @@
 ::
-:: Run the latest test/*main*.exe (by default), whatever flavor it is...
+:: Run the latest default test, or the one matching the pattern on the cmdline
 ::
 
 @echo off
-:!!call %~dp0tooling\_setenv.cmd
+::!! Miraculously, there's no prj-level setup needed for now, but that might change any day:
+::!! call %~dp0tooling\setenv.cmd
 
-set _exe_pattern=*main*exe
-set _run_dir=test
+if not "%1" == "" set "_exe_pattern=*%1*.exe"
+if     "%1" == "" set "_exe_pattern=*main*.exe"
 
-for /f %%f in ('dir /b /o-d /t:w "%_run_dir%\%_exe_pattern%"') do (
-	set "latest_exe=%%f"
+set run_dir=test
+
+for /f %%f in ('dir /b /o-d /t:w "%run_dir%\%_exe_pattern%"') do (
+	set "_latest_matching=%%f"
 	goto :break
 )
 :break
 
-echo Launching: %latest_exe% %*...
-"%_run_dir%\%latest_exe%" %*
+echo Launching: %_latest_matching% %*...
+"%run_dir%\%_latest_matching%" %*
